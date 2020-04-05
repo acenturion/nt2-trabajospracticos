@@ -16,29 +16,89 @@ new Vue({
             return `${salud}%`
         },
         empezarPartida: function () {
+            this.hayUnaPartidaEnJuego = true;
+            this.saludMonstruo = 100;
+            this.saludJugador = 100;
+            this.turnos = []
         },
         atacar: function () {
+            var danio = this.calcularHeridas(this.rangoAtaque);
+            this.saludMonstruo -= danio;
+
+            this.registrarEvento(true,'El jugador golpea al monstruo por ' + danio);
+
+            if(this.verificarGanador()){
+                return;
+            }
+
+            this.ataqueDelMonstruo();
         },
 
         ataqueEspecial: function () {
+            var danio = this.calcularHeridas(this.rangoAtaqueEspecial);
+            this.saludMonstruo -= danio;
+
+            this.registrarEvento(true,'El jugador realiza ataque especial al monstruo por ' + danio);
+
+            if(this.verificarGanador()){
+                return;
+            }
+            this.ataqueDelMonstruo();
         },
 
         curar: function () {
+            if(this.saludJugador <= 90){
+                this.saludJugador +=10;
+            } else {
+                this.saludJugador = 100;
+            }
+
+            this.ataqueDelMonstruo();
         },
 
-        registrarEvento(evento) {
+        registrarEvento(esJugador, text) {
+            
+            this.turnos.unshift({
+                esJugador: esJugador,
+                text: text
+            });
+            
         },
         terminarPartida: function () {
+            this.registrarEvento(false, 'Te rendiste! Jugar de nuevo?')
+            this.hayUnaPartidaEnJuego = false;
         },
 
         ataqueDelMonstruo: function () {
+            var danio = this.calcularHeridas(this.rangoAtaqueDelMonstruo);
+            this.saludJugador -= danio;
+
+            this.registrarEvento(false,'El monstruo lastima al jugador por ' + danio);
+
+
+            this.verificarGanador;
         },
 
         calcularHeridas: function (rango) {
-            return 0
+            return Math.max(Math.floor(Math.random() * rango[1]) + 1, rango[0] );
 
         },
         verificarGanador: function () {
+            if(this.saludMonstruo <= 0){
+                if(this.registrarEvento(true, 'Ganaste! Jugar de nuevo?')){
+                    this.empezarPartida();
+                }else{
+                    this.hayUnaPartidaEnJuego = false;
+                }
+                return true;
+            }else if( this.saludJugador <= 0){
+                if(this.registrarEvento(false, 'Perdiste! Jugar de nuevo?')){
+                    this.empezarPartida();
+                }else{
+                    this.hayUnaPartidaEnJuego = false;
+                }
+                return true;
+            }
             return false;
         },
         cssEvento(turno) {
