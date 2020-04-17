@@ -76,7 +76,7 @@ new Vue({
             this.registrarEvento(false,'El monstruo lastima al jugador por ' + danio);
 
 
-            this.verificarGanador;
+            this.verificarGanador();
         },
 
         calcularHeridas: function (rango) {
